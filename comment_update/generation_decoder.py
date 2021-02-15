@@ -8,7 +8,7 @@ import torch
 from torch import nn
 
 from constants import START, BEAM_SIZE
-from decoder import Decoder
+from comment_update.decoder import Decoder
 
 class GenerationDecoder(Decoder):
     def __init__(self, input_size, hidden_size, attention_state_size, embedding_store,

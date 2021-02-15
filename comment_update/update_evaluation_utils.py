@@ -7,7 +7,7 @@ import subprocess
 
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from pycocoevalcap.meteor.meteor import Meteor
-from SARI import SARIsent
+from comment_update.SARI import SARIsent
 
 from data_utils import get_processed_comment_str
 

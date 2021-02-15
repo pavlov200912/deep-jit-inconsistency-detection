@@ -6,7 +6,7 @@ import re
 import torch
 from typing import List, NamedTuple
 
-from external_cache import get_node_features
+from comment_update.external_cache import get_node_features
 
 @enum.unique
 class CommentCategory(Enum):

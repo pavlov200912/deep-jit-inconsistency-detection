@@ -13,10 +13,10 @@ from ast_graph_encoder import ASTGraphEncoder
 from constants import *
 from data_utils import *
 import diff_utils
-from embedding_store import EmbeddingStore
+from comment_update.embedding_store import EmbeddingStore
 from encoder import Encoder
-from external_cache import get_code_features, get_nl_features, get_num_code_features, get_num_nl_features
-from tensor_utils import *
+from comment_update.external_cache import get_code_features, get_nl_features, get_num_code_features, get_num_nl_features
+from comment_update.tensor_utils import *
 
 
 class ModuleManager(nn.Module):

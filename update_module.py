@@ -11,10 +11,10 @@ from data_utils import get_processed_comment_sequence, get_processed_comment_str
 from detection_evaluation_utils import compute_score
 import diff_utils
 from encoder import Encoder
-from external_cache import get_old_code, get_new_code
-from update_evaluation_utils import compute_accuracy, compute_bleu, compute_meteor, write_predictions,\
+from comment_update.external_cache import get_old_code, get_new_code
+from comment_update.update_evaluation_utils import compute_accuracy, compute_bleu, compute_meteor, write_predictions,\
     compute_sentence_bleu, compute_sentence_meteor, compute_sari, compute_gleu
-from update_decoder import UpdateDecoder
+from comment_update.update_decoder import UpdateDecoder
 
 
 class UpdateModule(nn.Module):

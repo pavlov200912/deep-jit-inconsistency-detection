@@ -6,7 +6,7 @@ sys.path.append('comment_update')
 from data_loader import get_data_splits, load_cleaned_test_set
 from data_utils import get_processed_comment_str
 from detection_evaluation_utils import compute_score
-from update_evaluation_utils import write_predictions, compute_accuracy, compute_bleu,\
+from comment_update.update_evaluation_utils import write_predictions, compute_accuracy, compute_bleu,\
     compute_meteor, compute_sari, compute_gleu
 
 """Script for printing update or detection metrics for output, on full and clean test sets."""
