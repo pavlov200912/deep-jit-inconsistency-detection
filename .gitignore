@@ -8,6 +8,10 @@ __pycache__/
 # C extensions
 *.so
 
+
+# Only for colab usage
+constants.py
+
 # Distribution / packaging
 .Python
 env/

@@ -5,7 +5,7 @@ import sys
 import torch
 
 sys.path.append('comment_update')
-from comment_generation import CommentGenerationModel
+from comment_update.comment_generation import CommentGenerationModel
 from update_module import UpdateModule
 from detection_module import DetectionModule
 from data_loader import get_data_splits
