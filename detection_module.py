@@ -111,11 +111,13 @@ class DetectionModule(nn.Module):
         self.optimizer.step()
         return float(loss.cpu())
     
-    def run_evaluation(self, test_examples, model_name):
+    def run_evaluation(self, test_examples, model_name, method_details = None, tokenization_features = None):
         """Predicts labels for all comments in the test set and computes evaluation metrics."""
         self.eval()
 
-        test_batches = self.manager.get_batches(test_examples, self.get_device())
+        test_batches = self.manager.get_batches(test_examples, self.get_device(),
+                                                method_details=method_details,
+                                                tokenization_features=tokenization_features)
         test_predictions = []
 
         with torch.no_grad():

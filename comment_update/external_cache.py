@@ -13,37 +13,50 @@ method_details = dict()
 tokenization_features = dict()
 for d in os.listdir(RESOURCES_PATH):
     try:
-        with open(os.path.join(RESOURCES_PATH, d, 'high_level_details.json')) as f:
+        with open(os.path.join(RESOURCES_PATH, d,
+                               'high_level_details.json')) as f:
             method_details.update(json.load(f))
-        with open(os.path.join(RESOURCES_PATH, d, 'tokenization_features.json')) as f:
+        with open(os.path.join(RESOURCES_PATH, d,
+                               'tokenization_features.json')) as f:
             tokenization_features.update(json.load(f))
     except:
         print('Failed parsing: {}'.format(d))
 
-
 stop_words = set(stopwords.words('english'))
-java_keywords = set(['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class',
-         'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final', 'finally',
-         'float', 'for', 'if', 'implements', 'import', 'instanceof', 'int', 'interface', 'long',
-         'native', 'new', 'null', 'package', 'private', 'protected', 'public', 'return', 'short',
-         'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient',
-         'try', 'void', 'volatile', 'while'])
+java_keywords = set(
+    ['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char',
+     'class',
+     'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final',
+     'finally',
+     'float', 'for', 'if', 'implements', 'import', 'instanceof', 'int',
+     'interface', 'long',
+     'native', 'new', 'null', 'package', 'private', 'protected', 'public',
+     'return', 'short',
+     'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw',
+     'throws', 'transient',
+     'try', 'void', 'volatile', 'while'])
 
-tags = ['CC','CD','DT','EX','FW','IN','JJ','JJR','JJS','LS','MD','NN','NNS','NNP','NNPS','PDT',
-'POS','PRP','PRP$','RB','RBR','RBS','RP','TO','UH','VB','VBD','VBG','VBN','VBP','VBZ','WDT','WP','WP$','WRB',
-'OTHER']
+tags = ['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'JJ', 'JJR', 'JJS', 'LS', 'MD',
+        'NN', 'NNS', 'NNP', 'NNPS', 'PDT',
+        'POS', 'PRP', 'PRP$', 'RB', 'RBR', 'RBS', 'RP', 'TO', 'UH', 'VB', 'VBD',
+        'VBG', 'VBN', 'VBP', 'VBZ', 'WDT', 'WP', 'WP$', 'WRB',
+        'OTHER']
 
 NUM_CODE_FEATURES = 19
 NUM_NL_FEATURES = 17 + len(tags)
 
+
 def get_num_code_features():
     return NUM_CODE_FEATURES
+
 
 def get_num_nl_features():
     return NUM_NL_FEATURES
 
+
 def is_java_keyword(token):
     return token in java_keywords
+
 
 def is_operator(token):
     for s in token:
@@ -51,62 +64,108 @@ def is_operator(token):
             return False
     return True
 
-def get_return_type_subtokens(example):
+
+def get_return_type_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['new']['subtoken']['return_type']
     return method_details[example.id]['new']['subtoken']['return_type']
 
-def get_old_return_type_subtokens(example):
+
+def get_old_return_type_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['old']['subtoken']['return_type']
     return method_details[example.id]['old']['subtoken']['return_type']
 
-def get_method_name_subtokens(example):
+
+def get_method_name_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['new']['subtoken']['method_name']
     return method_details[example.id]['new']['subtoken']['method_name']
 
-def get_new_return_sequence(example):
+
+def get_new_return_sequence(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['new']['subtoken']['return_statement']
     return method_details[example.id]['new']['subtoken']['return_statement']
 
-def get_old_return_sequence(example):
+
+def get_old_return_sequence(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['old']['subtoken']['return_statement']
     return method_details[example.id]['old']['subtoken']['return_statement']
 
-def get_old_argument_type_subtokens(example):
+
+def get_old_argument_type_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['old']['subtoken']['argument_type']
     return method_details[example.id]['old']['subtoken']['argument_type']
 
-def get_new_argument_type_subtokens(example):
+
+def get_new_argument_type_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['new']['subtoken']['argument_type']
     return method_details[example.id]['new']['subtoken']['argument_type']
 
-def get_old_argument_name_subtokens(example):
+
+def get_old_argument_name_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['old']['subtoken']['argument_name']
     return method_details[example.id]['old']['subtoken']['argument_name']
 
-def get_new_argument_name_subtokens(example):
+
+def get_new_argument_name_subtokens(example, eval_method_details):
+    if eval_method_details is not None:
+        return eval_method_details[example.id]['new']['subtoken']['argument_name']
     return method_details[example.id]['new']['subtoken']['argument_name']
+
 
 def get_old_code(example):
     return example.old_code_raw
 
+
 def get_new_code(example):
     return example.new_code_raw
 
-def get_edit_span_subtoken_tokenization_labels(example):
+
+def get_edit_span_subtoken_tokenization_labels(example, eval_tokenization_features):
+    if eval_tokenization_features is not None:
+        return eval_tokenization_features[example.id]['edit_span_subtoken_labels']
     return tokenization_features[example.id]['edit_span_subtoken_labels']
 
-def get_edit_span_subtoken_tokenization_indices(example):
+
+def get_edit_span_subtoken_tokenization_indices(example, eval_tokenization_features):
+    if eval_tokenization_features is not None:
+        return eval_tokenization_features[example.id]['edit_span_subtoken_indices']
     return tokenization_features[example.id]['edit_span_subtoken_indices']
 
-def get_nl_subtoken_tokenization_labels(example):
+
+def get_nl_subtoken_tokenization_labels(example, eval_tokenization_features):
+    if eval_tokenization_features is not None:
+        return eval_tokenization_features[example.id]['old_nl_subtoken_labels']
     return tokenization_features[example.id]['old_nl_subtoken_labels']
 
-def get_nl_subtoken_tokenization_indices(example):
+
+def get_nl_subtoken_tokenization_indices(example, eval_tokenization_features):
+    if eval_tokenization_features is not None:
+        return eval_tokenization_features[example.id]['old_nl_subtoken_indices']
     return tokenization_features[example.id]['old_nl_subtoken_indices']
 
-def get_node_features(nodes, example, max_ast_length):
-    old_return_type_subtokens = get_old_return_type_subtokens(example)
-    new_return_type_subtokens = get_return_type_subtokens(example)
-    method_name_subtokens = get_method_name_subtokens(example)
 
-    old_return_sequence = get_old_return_sequence(example)
-    new_return_sequence = get_new_return_sequence(example)
+def get_node_features(nodes, example, max_ast_length,
+                      eval_method_details=None, eval_tokenization_features=None):
+    old_return_type_subtokens = get_old_return_type_subtokens(example, eval_method_details)
+    new_return_type_subtokens = get_return_type_subtokens(example, eval_method_details)
+    method_name_subtokens = get_method_name_subtokens(example, eval_method_details)
 
-    old_return_line_terms = set([t for t in old_return_sequence if not is_java_keyword(t) and not is_operator(t)])
-    new_return_line_terms = set([t for t in new_return_sequence if not is_java_keyword(t) and not is_operator(t)])
-    return_line_intersection = old_return_line_terms.intersection(new_return_line_terms)
+    old_return_sequence = get_old_return_sequence(example, eval_method_details)
+    new_return_sequence = get_new_return_sequence(example, eval_method_details)
+
+    old_return_line_terms = set([t for t in old_return_sequence if
+                                 not is_java_keyword(t) and not is_operator(t)])
+    new_return_line_terms = set([t for t in new_return_sequence if
+                                 not is_java_keyword(t) and not is_operator(t)])
+    return_line_intersection = old_return_line_terms.intersection(
+        new_return_line_terms)
 
     old_set = set(old_return_type_subtokens)
     new_set = set(new_return_type_subtokens)
@@ -121,7 +180,7 @@ def get_node_features(nodes, example, max_ast_length):
     for i, node in enumerate(nodes):
         if not node.is_leaf:
             continue
-        
+
         token = node.value
 
         if token in intersection:
@@ -141,7 +200,7 @@ def get_node_features(nodes, example, max_ast_length):
             features[i][6] = True
         else:
             features[i][7] = True
-        
+
         if is_edit_keyword(token):
             features[i][8] = True
         if is_java_keyword(token):
@@ -150,7 +209,7 @@ def get_node_features(nodes, example, max_ast_length):
             features[i][10] = True
         if token in old_nl_tokens:
             features[i][11] = True
-        
+
         if not is_edit_keyword(token):
             if last_command == KEEP:
                 features[i][12] = 1
@@ -164,39 +223,47 @@ def get_node_features(nodes, example, max_ast_length):
                 features[i][16] = 1
         else:
             last_command = token
-        
+
         if len(node.subtoken_children) > 0 or len(node.subtoken_parents) > 0:
             features[i][17] = True
-        
+
         if len(node.subtoken_parents) == 1:
-            features[i][18] = node.subtoken_parents[0].subtoken_children.index(node)
+            features[i][18] = node.subtoken_parents[0].subtoken_children.index(
+                node)
 
     return features.astype(np.float32)
 
-def get_code_features(code_sequence, example, max_code_length):
-    old_return_type_subtokens = get_old_return_type_subtokens(example)
-    new_return_type_subtokens = get_return_type_subtokens(example)
-    method_name_subtokens = get_method_name_subtokens(example)
 
-    old_return_sequence = get_old_return_sequence(example)
-    new_return_sequence = get_new_return_sequence(example)
+def get_code_features(code_sequence, example, max_code_length,
+                      eval_method_details=None,
+                      eval_tokenization_features=None):
+    old_return_type_subtokens = get_old_return_type_subtokens(example, eval_method_details)
+    new_return_type_subtokens = get_return_type_subtokens(example, eval_method_details)
+    method_name_subtokens = get_method_name_subtokens(example, eval_method_details)
 
-    old_return_line_terms = set([t for t in old_return_sequence if not is_java_keyword(t) and not is_operator(t)])
-    new_return_line_terms = set([t for t in new_return_sequence if not is_java_keyword(t) and not is_operator(t)])
-    return_line_intersection = old_return_line_terms.intersection(new_return_line_terms)
+    old_return_sequence = get_old_return_sequence(example, eval_method_details)
+    new_return_sequence = get_new_return_sequence(example, eval_method_details)
+
+    old_return_line_terms = set([t for t in old_return_sequence if
+                                 not is_java_keyword(t) and not is_operator(t)])
+    new_return_line_terms = set([t for t in new_return_sequence if
+                                 not is_java_keyword(t) and not is_operator(t)])
+    return_line_intersection = old_return_line_terms.intersection(
+        new_return_line_terms)
 
     old_set = set(old_return_type_subtokens)
     new_set = set(new_return_type_subtokens)
 
     intersection = old_set.intersection(new_set)
 
-    features = np.zeros((max_code_length, get_num_code_features()), dtype=np.int64)
+    features = np.zeros((max_code_length, get_num_code_features()),
+                        dtype=np.int64)
 
     old_nl_tokens = set(example.old_comment_subtokens)
     last_command = None
 
-    subtoken_labels = get_edit_span_subtoken_tokenization_labels(example)
-    subtoken_indices = get_edit_span_subtoken_tokenization_indices(example)
+    subtoken_labels = get_edit_span_subtoken_tokenization_labels(example, eval_tokenization_features)
+    subtoken_indices = get_edit_span_subtoken_tokenization_indices(example, eval_tokenization_features)
 
     for i, token in enumerate(code_sequence):
         if i >= max_code_length:
@@ -218,7 +285,7 @@ def get_code_features(code_sequence, example, max_code_length):
             features[i][6] = True
         else:
             features[i][7] = True
-        
+
         if is_edit_keyword(token):
             features[i][8] = True
         if is_java_keyword(token):
@@ -227,7 +294,7 @@ def get_code_features(code_sequence, example, max_code_length):
             features[i][10] = True
         if token in old_nl_tokens:
             features[i][11] = True
-        
+
         if not is_edit_keyword(token):
             if last_command == KEEP:
                 features[i][12] = 1
@@ -241,13 +308,15 @@ def get_code_features(code_sequence, example, max_code_length):
                 features[i][16] = 1
         else:
             last_command = token
-        
+
         features[i][17] = subtoken_labels[i]
         features[i][18] = subtoken_indices[i]
 
     return features.astype(np.float32)
 
-def get_nl_features(old_nl_sequence, example, max_nl_length):
+
+def get_nl_features(old_nl_sequence, example, max_nl_length,
+                    eval_method_details=None, eval_tokenization_features=None):
     insert_code_tokens = set()
     keep_code_tokens = set()
     delete_code_tokens = set()
@@ -259,7 +328,7 @@ def get_nl_features(old_nl_sequence, example, max_nl_length):
         if tok not in frequency_map:
             frequency_map[tok] = 0
         frequency_map[tok] += 1
-    
+
     pos_tags = pos_tag(word_tokenize(' '.join(old_nl_sequence)))
     pos_tag_indices = []
     for _, t in pos_tags:
@@ -273,41 +342,45 @@ def get_nl_features(old_nl_sequence, example, max_nl_length):
 
     while i < len(code_tokens):
         if code_tokens[i] == INSERT:
-            insert_code_tokens.add(code_tokens[i+1].lower())
+            insert_code_tokens.add(code_tokens[i + 1].lower())
             i += 2
         elif code_tokens[i] == KEEP:
-            keep_code_tokens.add(code_tokens[i+1].lower())
+            keep_code_tokens.add(code_tokens[i + 1].lower())
             i += 2
         elif code_tokens[i] == DELETE:
-            delete_code_tokens.add(code_tokens[i+1].lower())
+            delete_code_tokens.add(code_tokens[i + 1].lower())
             i += 2
         elif code_tokens[i] == REPLACE_OLD:
-            replace_old_code_tokens.add(code_tokens[i+1].lower())
+            replace_old_code_tokens.add(code_tokens[i + 1].lower())
             i += 2
         elif code_tokens[i] == REPLACE_NEW:
-            replace_new_code_tokens.add(code_tokens[i+1].lower())
+            replace_new_code_tokens.add(code_tokens[i + 1].lower())
             i += 2
-    
-    old_return_type_subtokens = get_old_return_type_subtokens(example)
-    new_return_type_subtokens = get_return_type_subtokens(example)
 
-    old_return_sequence = get_old_return_sequence(example)
-    new_return_sequence = get_new_return_sequence(example)
+    old_return_type_subtokens = get_old_return_type_subtokens(example, eval_method_details)
+    new_return_type_subtokens = get_return_type_subtokens(example, eval_method_details)
 
-    old_return_line_terms = set([t for t in old_return_sequence if not is_java_keyword(t) and not is_operator(t)])
-    new_return_line_terms = set([t for t in new_return_sequence if not is_java_keyword(t) and not is_operator(t)])
-    return_line_intersection = old_return_line_terms.intersection(new_return_line_terms)
+    old_return_sequence = get_old_return_sequence(example, eval_method_details)
+    new_return_sequence = get_new_return_sequence(example, eval_method_details)
+
+    old_return_line_terms = set([t for t in old_return_sequence if
+                                 not is_java_keyword(t) and not is_operator(t)])
+    new_return_line_terms = set([t for t in new_return_sequence if
+                                 not is_java_keyword(t) and not is_operator(t)])
+    return_line_intersection = old_return_line_terms.intersection(
+        new_return_line_terms)
 
     old_set = set(old_return_type_subtokens)
     new_set = set(new_return_type_subtokens)
 
     intersection = old_set.intersection(new_set)
 
-    method_name_subtokens = method_name_subtokens = get_method_name_subtokens(example)
+    method_name_subtokens = method_name_subtokens = get_method_name_subtokens(
+        example, eval_method_details)
 
-    nl_subtoken_labels = get_nl_subtoken_tokenization_labels(example)
-    nl_subtoken_indices = get_nl_subtoken_tokenization_indices(example)
-        
+    nl_subtoken_labels = get_nl_subtoken_tokenization_labels(example, eval_tokenization_features)
+    nl_subtoken_indices = get_nl_subtoken_tokenization_indices(example, eval_tokenization_features)
+
     features = np.zeros((max_nl_length, get_num_nl_features()), dtype=np.int64)
     for i in range(len(old_nl_sequence)):
         if i >= max_nl_length:
@@ -330,7 +403,7 @@ def get_nl_features(old_nl_sequence, example, max_nl_length):
             features[i][6] = True
         else:
             features[i][7] = True
-        
+
         features[i][8] = token in insert_code_tokens
         features[i][9] = token in keep_code_tokens
         features[i][10] = token in delete_code_tokens

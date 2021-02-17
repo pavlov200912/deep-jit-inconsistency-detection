@@ -64,14 +64,17 @@ def train(model, train_examples, valid_examples):
     model.run_train(train_examples, valid_examples)
 
 
-def evaluate(task, model, test_examples, model_name, rerank):
+def evaluate(task, model, test_examples, model_name, rerank, method_details=None,
+             tokenization_features=None):
     """Runs evaluation over a given model."""
     print('Evaluating {} examples'.format(len(test_examples)))
     sys.stdout.flush()
     if task == 'detect':
-        model.run_evaluation(test_examples, model_name)
+        model.run_evaluation(test_examples, model_name, method_details=method_details,
+                             tokenization_features=tokenization_features)
     else:
-        model.run_evaluation(test_examples, rerank, model_name)
+        model.run_evaluation(test_examples, rerank, model_name, method_details=method_details,
+                             tokenization_features=tokenization_features)
 
 
 if __name__ == "__main__":
