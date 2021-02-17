@@ -97,7 +97,7 @@ if __name__ == "__main__":
                         help='name of model (used to save model output)')
     args = parser.parse_args()
 
-    train_examples, valid_examples, test_examples, high_level_details = get_data_splits()
+    train_examples, valid_examples, test_examples, high_level_details = get_data_splits(ignore_ast=True)
     if args.positive_only:
         train_examples = [ex for ex in train_examples if ex.label == 1]
         valid_examples = [ex for ex in valid_examples if ex.label == 1]
