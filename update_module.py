@@ -197,12 +197,12 @@ class UpdateModule(nn.Module):
         comment_generation_model.eval()
         return comment_generation_model
 
-    def run_evaluation(self, test_data, rerank, model_name, method_details=None, tokenize_features=None):
+    def run_evaluation(self, test_data, rerank, model_name, method_details=None, tokenization_features=None):
         """Predicts updated comments for all comments in the test set and computes evaluation metrics."""
         self.eval()
 
         test_batches = self.manager.get_batches(test_data, self.get_device(), method_details=method_details,
-                                                tokenize_features=tokenize_features)
+                                                tokenization_features=tokenization_features)
         test_predictions = []
         generation_predictions = []
 
