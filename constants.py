@@ -36,11 +36,14 @@ NUM_TRANSFORMER_LAYERS = 2
 
 # Download data from here: https://drive.google.com/drive/folders/1heqEQGZHgO6gZzCjuQD1EyYertN4SAYZ?usp=sharing
 # DATA_PATH should point to the location in which the above data is saved locally
+
 DATA_PATH = '/content/drive/MyDrive/public-inconsistency-detection-data'  # TODO
+
 RESOURCES_PATH = os.path.join(DATA_PATH, 'resources')
 
 # Download model resources from here: https://drive.google.com/drive/folders/1cutxr4rMDkT1g2BbmCAR2wqKTxeFH11K?usp=sharing
 # MODEL_RESOURCES_PATH should point to the location in which the above resources are saved locally.
+
 MODEL_RESOURCES_PATH = '/content/drive/MyDrive/inconsistency-detection-model-resources'  # TODO
 NL_EMBEDDING_PATH = os.path.join(MODEL_RESOURCES_PATH, 'nl_embeddings.json')
 CODE_EMBEDDING_PATH = os.path.join(MODEL_RESOURCES_PATH, 'code_embeddings.json')
@@ -50,3 +53,4 @@ FULL_GENERATION_MODEL_PATH = os.path.join(MODEL_RESOURCES_PATH,
 # Should point to where the output is to be saved
 PREDICTION_DIR = 'out_update'  # TODO
 DETECTION_DIR = 'out_detect'  # TODO
+

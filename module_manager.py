@@ -13,10 +13,12 @@ from ast_graph_encoder import ASTGraphEncoder
 from constants import *
 from data_utils import *
 import diff_utils
+
 from comment_update.embedding_store import EmbeddingStore
 from encoder import Encoder
 from comment_update.external_cache import get_code_features, get_nl_features, get_num_code_features, get_num_nl_features
 from comment_update.tensor_utils import *
+
 
 
 class ModuleManager(nn.Module):
@@ -70,7 +72,9 @@ class ModuleManager(nn.Module):
         nl_token_counter = Counter()
         code_token_counter = Counter()
 
-        for ex  in train_data:
+
+        for ex in train_data:
+
             if self.generate: 
                 trg_sequence = [START] + ex.span_minimal_diff_comment_subtokens + [END]
                 nl_token_counter.update(trg_sequence)
@@ -158,8 +162,10 @@ class ModuleManager(nn.Module):
             self.attended_nl_encoder = Encoder(self.out_dim, HIDDEN_SIZE, NUM_LAYERS, DROPOUT_RATE)
             self.attended_nl_encoder_output_layer = nn.Linear(self.attention_state_size, self.out_dim, bias=False)
 
+
     def get_batches(self, dataset, device, shuffle=False, method_details=None,
                     tokenization_features=None):
+
         """Divides the dataset into batches based on pre-defined BATCH_SIZE hyperparameter.
            Each batch is tensorized so that it can be directly passed into the network."""
         batches = []
@@ -202,9 +208,11 @@ class ModuleManager(nn.Module):
                     ast_length = min(len(ast_sequence), self.max_ast_length)
                     ast.nodes = ast.nodes[:ast_length]
                     graph_batch = insert_graph(graph_batch, dataset[i], ast,
+
                         self.embedding_store.code_vocabulary, self.features, self.max_ast_length,
                                                method_details=method_details,
                                                tokenization_features=tokenization_features)
+
 
                 old_nl_sequence = dataset[i].old_comment_subtokens
                 old_nl_length = min(len(old_nl_sequence), self.max_nl_length)
@@ -249,7 +257,9 @@ class ModuleManager(nn.Module):
                     trg_extended_token_ids.append(trg_extended_sequence_ids)
                     trg_lengths.append(min(len(trg_sequence), self.max_nl_length))
                     inp_str_reps.append(ex_inp_str_reps)
-                    inp_ids.append(ex_inp_ids)
+
+                    inp_ids.append(self.embedding_store.pad_length(ex_inp_ids, self.max_vocab_extension))
+
 
                     invalid_copy_positions.append(get_invalid_copy_locations(ex_inp_str_reps, self.max_vocab_extension,
                         trg_sequence, self.max_nl_length))
@@ -258,12 +268,14 @@ class ModuleManager(nn.Module):
 
                 if self.features:
                     if self.encode_code_sequence:
+
                         code_features.append(get_code_features(code_sequence, dataset[i], self.max_code_length,
                                                                eval_method_details=method_details,
                                                                eval_tokenization_features=tokenization_features))
                     nl_features.append(get_nl_features(old_nl_sequence, dataset[i], self.max_nl_length,
                                                        eval_method_details=method_details,
                                                        eval_tokenization_features=tokenization_features))
+
                 
             batches.append(UpdateBatchData(torch.tensor(code_token_ids, dtype=torch.int64, device=device),
                                            torch.tensor(code_lengths, dtype=torch.int64, device=device),
@@ -273,7 +285,10 @@ class ModuleManager(nn.Module):
                                            torch.tensor(trg_extended_token_ids, dtype=torch.int64, device=device),
                                            torch.tensor(trg_lengths, dtype=torch.int64, device=device),
                                            torch.tensor(invalid_copy_positions, dtype=torch.uint8, device=device),
-                                           inp_str_reps, inp_ids,
+
+                                           inp_str_reps,
+                                           torch.tensor(inp_ids, dtype=torch.int64, device=device),
+
                                            torch.tensor(code_features, dtype=torch.float32, device=device),
                                            torch.tensor(nl_features, dtype=torch.float32, device=device),
                                            torch.tensor(labels, dtype=torch.int64, device=device),

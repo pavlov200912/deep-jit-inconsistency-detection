@@ -15,11 +15,13 @@ sys.path.append('../')
 
 from constants import *
 from data_utils import read_full_examples_from_file, GenerationBatchData
+
 from comment_update.generation_decoder import GenerationDecoder
 from comment_update.embedding_store import EmbeddingStore
 from encoder import Encoder
 from comment_update.update_evaluation_utils import compute_accuracy, compute_bleu, compute_meteor
 from comment_update.tensor_utils import get_invalid_copy_locations
+
 
 class CommentGenerationModel(nn.Module):
     """Simple Seq2Seq w/ attention + copy model for pure comment generation (i.e. generating a comment given a method)."""

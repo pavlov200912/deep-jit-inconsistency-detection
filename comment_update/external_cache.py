@@ -13,34 +13,28 @@ method_details = dict()
 tokenization_features = dict()
 for d in os.listdir(RESOURCES_PATH):
     try:
-        with open(os.path.join(RESOURCES_PATH, d,
-                               'high_level_details.json')) as f:
+
+        with open(os.path.join(RESOURCES_PATH, d, 'high_level_details.json')) as f:
             method_details.update(json.load(f))
-        with open(os.path.join(RESOURCES_PATH, d,
-                               'tokenization_features.json')) as f:
+        with open(os.path.join(RESOURCES_PATH, d, 'tokenization_features.json')) as f:
+
             tokenization_features.update(json.load(f))
     except:
         print('Failed parsing: {}'.format(d))
 
 stop_words = set(stopwords.words('english'))
-java_keywords = set(
-    ['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char',
-     'class',
-     'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final',
-     'finally',
-     'float', 'for', 'if', 'implements', 'import', 'instanceof', 'int',
-     'interface', 'long',
-     'native', 'new', 'null', 'package', 'private', 'protected', 'public',
-     'return', 'short',
-     'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw',
-     'throws', 'transient',
-     'try', 'void', 'volatile', 'while'])
 
-tags = ['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'JJ', 'JJR', 'JJS', 'LS', 'MD',
-        'NN', 'NNS', 'NNP', 'NNPS', 'PDT',
-        'POS', 'PRP', 'PRP$', 'RB', 'RBR', 'RBS', 'RP', 'TO', 'UH', 'VB', 'VBD',
-        'VBG', 'VBN', 'VBP', 'VBZ', 'WDT', 'WP', 'WP$', 'WRB',
-        'OTHER']
+java_keywords = set(['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class',
+         'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final', 'finally',
+         'float', 'for', 'if', 'implements', 'import', 'instanceof', 'int', 'interface', 'long',
+         'native', 'new', 'null', 'package', 'private', 'protected', 'public', 'return', 'short',
+         'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient',
+         'try', 'void', 'volatile', 'while'])
+
+tags = ['CC','CD','DT','EX','FW','IN','JJ','JJR','JJS','LS','MD','NN','NNS','NNP','NNPS','PDT',
+'POS','PRP','PRP$','RB','RBR','RBS','RP','TO','UH','VB','VBD','VBG','VBN','VBP','VBZ','WDT','WP','WP$','WRB',
+'OTHER']
+
 
 NUM_CODE_FEATURES = 19
 NUM_NL_FEATURES = 17 + len(tags)
@@ -49,10 +43,8 @@ NUM_NL_FEATURES = 17 + len(tags)
 def get_num_code_features():
     return NUM_CODE_FEATURES
 
-
 def get_num_nl_features():
     return NUM_NL_FEATURES
-
 
 def is_java_keyword(token):
     return token in java_keywords
@@ -63,6 +55,7 @@ def is_operator(token):
         if s.isalnum():
             return False
     return True
+
 
 
 def get_return_type_subtokens(example, eval_method_details):
@@ -167,6 +160,7 @@ def get_node_features(nodes, example, max_ast_length,
     return_line_intersection = old_return_line_terms.intersection(
         new_return_line_terms)
 
+
     old_set = set(old_return_type_subtokens)
     new_set = set(new_return_type_subtokens)
 
@@ -224,6 +218,7 @@ def get_node_features(nodes, example, max_ast_length,
         else:
             last_command = token
 
+
         if len(node.subtoken_children) > 0 or len(node.subtoken_parents) > 0:
             features[i][17] = True
 
@@ -251,19 +246,23 @@ def get_code_features(code_sequence, example, max_code_length,
     return_line_intersection = old_return_line_terms.intersection(
         new_return_line_terms)
 
+
     old_set = set(old_return_type_subtokens)
     new_set = set(new_return_type_subtokens)
 
     intersection = old_set.intersection(new_set)
 
+
     features = np.zeros((max_code_length, get_num_code_features()),
                         dtype=np.int64)
+
 
     old_nl_tokens = set(example.old_comment_subtokens)
     last_command = None
 
     subtoken_labels = get_edit_span_subtoken_tokenization_labels(example, eval_tokenization_features)
     subtoken_indices = get_edit_span_subtoken_tokenization_indices(example, eval_tokenization_features)
+
 
     for i, token in enumerate(code_sequence):
         if i >= max_code_length:
@@ -317,6 +316,7 @@ def get_code_features(code_sequence, example, max_code_length,
 
 def get_nl_features(old_nl_sequence, example, max_nl_length,
                     eval_method_details=None, eval_tokenization_features=None):
+
     insert_code_tokens = set()
     keep_code_tokens = set()
     delete_code_tokens = set()
@@ -342,6 +342,7 @@ def get_nl_features(old_nl_sequence, example, max_nl_length,
 
     while i < len(code_tokens):
         if code_tokens[i] == INSERT:
+
             insert_code_tokens.add(code_tokens[i + 1].lower())
             i += 2
         elif code_tokens[i] == KEEP:
@@ -370,6 +371,7 @@ def get_nl_features(old_nl_sequence, example, max_nl_length,
     return_line_intersection = old_return_line_terms.intersection(
         new_return_line_terms)
 
+
     old_set = set(old_return_type_subtokens)
     new_set = set(new_return_type_subtokens)
 
@@ -380,6 +382,7 @@ def get_nl_features(old_nl_sequence, example, max_nl_length,
 
     nl_subtoken_labels = get_nl_subtoken_tokenization_labels(example, eval_tokenization_features)
     nl_subtoken_indices = get_nl_subtoken_tokenization_indices(example, eval_tokenization_features)
+
 
     features = np.zeros((max_nl_length, get_num_nl_features()), dtype=np.int64)
     for i in range(len(old_nl_sequence)):
