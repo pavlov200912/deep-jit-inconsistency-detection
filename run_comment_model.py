@@ -62,7 +62,7 @@ def train(model, train_examples, valid_examples):
         model.cpu()
         for c in model.children():
             c.cpu()
-
+    model.run_train(train_examples, valid_examples)
 
 def evaluate(task, model, test_examples, model_name, rerank, method_details=None,
              tokenization_features=None):
