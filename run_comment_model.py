@@ -122,16 +122,19 @@ if __name__ == "__main__":
         print('Terminating evaluation: {}'.format(datetime.now().strftime("%m/%d/%Y %H:%M:%S")))
     else:
         print('Starting training: {}'.format(datetime.now().strftime("%m/%d/%Y %H:%M:%S")))
-        
-        manager = ModuleManager(args.attend_code_sequence_states, args.attend_code_graph_states, args.features, args.posthoc, args.task)
 
-        manager.initialize(train_examples)
-        model = build_model(args.task, args.model_path, manager)
 
-        print('Model path: {}'.format(args.model_path))
-        sys.stdout.flush()
+        for p in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+            data_number = int(len(train_examples) * p)
+            print(f"Training on {p * 100}%")
+            manager = ModuleManager(args.attend_code_sequence_states, args.attend_code_graph_states, args.features, args.posthoc, args.task)
 
-        
-        train(model, train_examples, valid_examples)
-        
-        print('Terminating training: {}'.format(datetime.now().strftime("%m/%d/%Y %H:%M:%S")))
+            manager.initialize(train_examples[:data_number])
+            model = build_model(args.task, args.model_path, manager)
+
+            print('Model path: {}'.format(args.model_path))
+            sys.stdout.flush()
+
+            train(model, train_examples[:data_number], valid_examples)
+
+            print('Terminating training: {}'.format(datetime.now().strftime("%m/%d/%Y %H:%M:%S")))

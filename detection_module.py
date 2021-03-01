@@ -72,10 +72,24 @@ class DetectionModule(nn.Module):
                     validation_predicted_labels.extend(b_logprobs.argmax(-1).tolist())
                     validation_gold_labels.extend(batch_data.labels.tolist())
 
+            train_predicted_labels = []
+            train_gold_labels = []
+
+            with torch.no_grad():
+                for batch_data in train_batches:
+                    b_loss, b_logprobs = self.forward(batch_data)
+                    train_predicted_labels.extend(b_logprobs.argmax(-1).tolist())
+                    train_gold_labels.extend(batch_data.labels.tolist())
+
+
             validation_loss = validation_loss/len(valid_batches)
             validation_precision, validation_recall, validation_f1 = compute_score(
                 validation_predicted_labels, validation_gold_labels, verbose=False)
-            
+
+            _, _, train_f1 = compute_score(
+                train_predicted_labels, train_gold_labels,
+                verbose=False)
+
             if validation_f1 >= best_f1:
                 best_f1 = validation_f1
                 torch.save(self, self.model_path)
@@ -87,9 +101,8 @@ class DetectionModule(nn.Module):
             
             print('Epoch: {}'.format(epoch))
             print('Training loss: {:.3f}'.format(train_loss/len(train_batches)))
+            print('Training f1: {:.3f}'.format(train_f1))
             print('Validation loss: {:.3f}'.format(validation_loss))
-            print('Validation precision: {:.3f}'.format(validation_precision))
-            print('Validation recall: {:.3f}'.format(validation_recall))
             print('Validation f1: {:.3f}'.format(validation_f1))
             if saved:
                 print('Saved')
