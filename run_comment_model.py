@@ -137,4 +137,8 @@ if __name__ == "__main__":
 
             train(model, train_examples[:data_number], valid_examples)
 
-            print('Terminating training: {}'.format(datetime.now().strftime("%m/%d/%Y %H:%M:%S")))
+            evaluate(args.task, model, test_examples, args.model_name,
+                     args.rerank)
+
+        print('Terminating training: {}'.format(datetime.now().strftime("%m/%d/%Y %H:%M:%S")))
+
