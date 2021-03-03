@@ -3,8 +3,8 @@ import os
 import re
 import sys
 
-from build_example import build_test_example
-from data_formatting_utils import tokenize_clean_code, subtokenize_code
+from data_processing.build_example import build_test_example
+from data_processing.data_formatting_utils import tokenize_clean_code, subtokenize_code
 
 sys.path.append('../')
 from diff_utils import is_edit_keyword, KEEP, DELETE, INSERT, REPLACE_OLD, REPLACE_NEW

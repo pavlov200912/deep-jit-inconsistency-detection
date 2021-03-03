@@ -5,8 +5,8 @@ import os
 import re
 import sys
 
-from build_example import build_test_example
-from data_formatting_utils import subtokenize_code, tokenize_clean_code, get_clean_code,\
+from data_processing.build_example import build_test_example
+from data_processing.data_formatting_utils import subtokenize_code, tokenize_clean_code, get_clean_code,\
 subtokenize_comment, tokenize_comment
 
 sys.path.append('../')
