@@ -7,7 +7,7 @@ import sys
 import torch
 from torch import nn
 
-from constants import *
+from jit_constants import *
 from detection_evaluation_utils import compute_score
 
 
@@ -39,7 +39,7 @@ class DetectionModule(nn.Module):
         loss, logprobs = self.compute_detection_loss(encoder_outputs, batch_data)
         return loss, logprobs
     
-    def run_train(self, train_examples, valid_examples):
+    def run_train(self, train_dataset, valid_examples):
         """Runs training over the entire training set across several epochs. Following each epoch,
            F1 on the validation data is computed. If the validation F1 has improved, save the model.
            Early-stopping is employed to stop training if validation hasn't improved for a certain number
@@ -55,8 +55,10 @@ class DetectionModule(nn.Module):
                 break
             
             self.train()
-            train_batches = self.manager.get_batches(train_examples, self.get_device(), shuffle=True)
-            
+            train_batches = self.manager.get_batches(train_dataset, self.get_device(), shuffle=True)
+
+
+
             train_loss = 0
             for batch_data in train_batches:
                 train_loss += self.run_gradient_step(batch_data)

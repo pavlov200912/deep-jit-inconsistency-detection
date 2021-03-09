@@ -6,7 +6,11 @@ import numpy as np
 import os
 import re
 
-from constants import *
+import sys
+
+sys.path.append('../')
+
+from jit_constants import *
 from diff_utils import *
 
 method_details = dict()

@@ -1,6 +1,6 @@
 import sys
 
-from data_formatting_utils import subtokenize_code, subtokenize_comment
+from data_processing.data_formatting_utils import subtokenize_code, subtokenize_comment
 
 sys.path.append('../')
 sys.path.append('../comment_update')

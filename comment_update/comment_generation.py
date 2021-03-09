@@ -13,7 +13,7 @@ from dpu_utils.mlutils import Vocabulary
 
 sys.path.append('../')
 
-from constants import *
+from jit_constants import *
 from data_utils import read_full_examples_from_file, GenerationBatchData
 
 from comment_update.generation_decoder import GenerationDecoder

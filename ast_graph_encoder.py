@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn as nn
 
-from constants import *
+from jit_constants import *
 from gnn import GatedGraphNeuralNetwork, AdjacencyList
 
 class ASTGraphEncoder(nn.Module):

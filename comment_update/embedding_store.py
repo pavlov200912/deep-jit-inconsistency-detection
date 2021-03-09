@@ -11,7 +11,7 @@ import sys
 import torch
 from torch import nn
 
-from constants import START, END, NL_EMBEDDING_PATH, CODE_EMBEDDING_PATH, MAX_VOCAB_SIZE,\
+from jit_constants import START, END, NL_EMBEDDING_PATH, CODE_EMBEDDING_PATH, MAX_VOCAB_SIZE,\
     NL_EMBEDDING_SIZE, CODE_EMBEDDING_SIZE
 from diff_utils import get_edit_keywords
 
@@ -159,7 +159,7 @@ class EmbeddingStore(nn.Module):
             return sequence[:target_length]
         else:
             return sequence + [self.__nl_vocabulary.get_id_or_unk(Vocabulary.get_pad()) for _ in range(target_length-len(sequence))]
-    
+
     def get_code_id(self, token):
         return self.__code_vocabulary.get_id_or_unk(token)
     

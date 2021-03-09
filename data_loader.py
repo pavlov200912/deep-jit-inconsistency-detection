@@ -1,7 +1,7 @@
 import json
 import os
 
-from constants import DATA_PATH
+from jit_constants import DATA_PATH
 from data_utils import DiffAST, DiffExample, DiffASTExample, CommentCategory
 
 PARTITIONS = ['train', 'valid', 'test']

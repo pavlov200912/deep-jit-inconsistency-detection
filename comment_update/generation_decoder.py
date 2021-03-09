@@ -7,7 +7,7 @@ import sys
 import torch
 from torch import nn
 
-from constants import START, BEAM_SIZE
+from jit_constants import START, BEAM_SIZE
 
 from comment_update.decoder import Decoder
 

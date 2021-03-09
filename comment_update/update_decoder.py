@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch_scatter import scatter_add
 
-from constants import START, BEAM_SIZE
+from jit_constants import START, BEAM_SIZE
 from comment_update.decoder import Decoder
 from comment_update.tensor_utils import compute_attention_states
 

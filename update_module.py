@@ -6,7 +6,7 @@ import sys
 import torch
 from torch import nn
 
-from constants import *
+from jit_constants import *
 from data_utils import get_processed_comment_sequence, get_processed_comment_str, Example
 from detection_evaluation_utils import compute_score
 import diff_utils
@@ -310,6 +310,7 @@ class UpdateModule(nn.Module):
             print('Old comment: {}'.format(src_str))
             print('Gold comment: {}'.format(gold_str))
             print('Predicted comment: {}'.format(pred_str))
+            print('Gold Comment changes: {}'.format(test_data[i].span_minimal_diff_comment_subtokens))
             print('Raw prediction: {}'.format(' '.join(test_predictions[i])))
             print('Inconsistency label: {}'.format(inconsistency_labels[i]))
             print('Pseudo inconsistency label: {}\n'.format(pseudo_predicted_label))

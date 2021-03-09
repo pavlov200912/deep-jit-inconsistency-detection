@@ -10,7 +10,8 @@ from torch import nn
 from dpu_utils.mlutils import Vocabulary
 
 from ast_graph_encoder import ASTGraphEncoder
-from constants import *
+from dataset import get_collate
+from jit_constants import *
 from data_utils import *
 import diff_utils
 
@@ -62,7 +63,7 @@ class ModuleManager(nn.Module):
             else:
                 return ex.diff_ast
 
-    def initialize(self, train_data):
+    def initialize(self, train_dataset):
         """Initializes model parameters from pre-defined hyperparameters and other hyperparameters
            that are computed based on statistics over the training data."""
         nl_lengths = []
@@ -73,7 +74,7 @@ class ModuleManager(nn.Module):
         code_token_counter = Counter()
 
 
-        for ex in train_data:
+        for ex in train_dataset:
 
             if self.generate: 
                 trg_sequence = [START] + ex.span_minimal_diff_comment_subtokens + [END]
@@ -168,15 +169,9 @@ class ModuleManager(nn.Module):
 
         """Divides the dataset into batches based on pre-defined BATCH_SIZE hyperparameter.
            Each batch is tensorized so that it can be directly passed into the network."""
-        batches = []
-        if shuffle:
-            random.shuffle(dataset)
-        
-        curr_idx = 0
-        while curr_idx < len(dataset):
-            start_idx = curr_idx
-            end_idx = min(start_idx + BATCH_SIZE, len(dataset))
-            
+
+        def batch_transform(batch):
+
             code_token_ids = []
             code_lengths = []
             old_nl_token_ids = []
@@ -193,50 +188,54 @@ class ModuleManager(nn.Module):
 
             graph_batch = initialize_graph_method_batch(len(DiffEdgeType))
 
-            for i in range(start_idx, end_idx):
+            for ex in batch:
                 if self.encode_code_sequence:
-                    code_sequence = self.get_code_representation(dataset[i], 'sequence')
+                    code_sequence = self.get_code_representation(ex,
+                                                                 'sequence')
                     code_sequence_ids = self.embedding_store.get_padded_code_ids(
                         code_sequence, self.max_code_length)
                     code_length = min(len(code_sequence), self.max_code_length)
                     code_token_ids.append(code_sequence_ids)
                     code_lengths.append(code_length)
-                
+
                 if self.attend_code_graph_states:
-                    ast = self.get_code_representation(dataset[i], 'graph')
+                    ast = self.get_code_representation(ex, 'graph')
                     ast_sequence = [n.value for n in ast.nodes]
                     ast_length = min(len(ast_sequence), self.max_ast_length)
                     ast.nodes = ast.nodes[:ast_length]
-                    graph_batch = insert_graph(graph_batch, dataset[i], ast,
+                    graph_batch = insert_graph(graph_batch, ex, ast,
 
-                        self.embedding_store.code_vocabulary, self.features, self.max_ast_length,
+                                               self.embedding_store.code_vocabulary,
+                                               self.features,
+                                               self.max_ast_length,
                                                method_details=method_details,
                                                tokenization_features=tokenization_features)
 
-
-                old_nl_sequence = dataset[i].old_comment_subtokens
+                old_nl_sequence = ex.old_comment_subtokens
                 old_nl_length = min(len(old_nl_sequence), self.max_nl_length)
                 old_nl_sequence_ids = self.embedding_store.get_padded_nl_ids(
                     old_nl_sequence, self.max_nl_length)
-                
+
                 old_nl_token_ids.append(old_nl_sequence_ids)
                 old_nl_lengths.append(old_nl_length)
-                
+
                 if self.generate:
                     ex_inp_str_reps = []
                     ex_inp_ids = []
-                    
+
                     extra_counter = len(self.embedding_store.nl_vocabulary)
-                    max_limit = len(self.embedding_store.nl_vocabulary) + self.max_vocab_extension
+                    max_limit = len(
+                        self.embedding_store.nl_vocabulary) + self.max_vocab_extension
                     out_ids = set()
 
                     copy_inputs = []
                     copy_inputs += code_sequence[:code_length]
-                    
+
                     copy_inputs += old_nl_sequence[:old_nl_length]
                     for c in copy_inputs:
                         nl_id = self.embedding_store.get_nl_id(c)
-                        if self.embedding_store.is_nl_unk(nl_id) and extra_counter < max_limit:
+                        if self.embedding_store.is_nl_unk(
+                                nl_id) and extra_counter < max_limit:
                             if c in ex_inp_str_reps:
                                 nl_id = ex_inp_ids[ex_inp_str_reps.index(c)]
                             else:
@@ -246,55 +245,62 @@ class ModuleManager(nn.Module):
                         out_ids.add(nl_id)
                         ex_inp_str_reps.append(c)
                         ex_inp_ids.append(nl_id)
-                
-                    trg_sequence = trg_sequence = [START] + dataset[i].span_minimal_diff_comment_subtokens + [END]
+
+                    trg_sequence = trg_sequence = [START] + ex.span_minimal_diff_comment_subtokens + [END]
                     trg_sequence_ids = self.embedding_store.get_padded_nl_ids(
                         trg_sequence, self.max_nl_length)
                     trg_extended_sequence_ids = self.embedding_store.get_extended_padded_nl_ids(
-                        trg_sequence, self.max_nl_length, ex_inp_ids, ex_inp_str_reps)
-                    
+                        trg_sequence, self.max_nl_length, ex_inp_ids,
+                        ex_inp_str_reps)
+
                     trg_token_ids.append(trg_sequence_ids)
                     trg_extended_token_ids.append(trg_extended_sequence_ids)
-                    trg_lengths.append(min(len(trg_sequence), self.max_nl_length))
+                    trg_lengths.append(
+                        min(len(trg_sequence), self.max_nl_length))
                     inp_str_reps.append(ex_inp_str_reps)
 
-                    inp_ids.append(self.embedding_store.pad_length(ex_inp_ids, self.max_vocab_extension))
+                    inp_ids.append(self.embedding_store.pad_length(ex_inp_ids,
+                                                                   self.max_vocab_extension))
 
+                    invalid_copy_positions.append(
+                        get_invalid_copy_locations(ex_inp_str_reps,
+                                                   self.max_vocab_extension,
+                                                   trg_sequence,
+                                                   self.max_nl_length))
 
-                    invalid_copy_positions.append(get_invalid_copy_locations(ex_inp_str_reps, self.max_vocab_extension,
-                        trg_sequence, self.max_nl_length))
-
-                labels.append(dataset[i].label)
+                labels.append(ex.label)
 
                 if self.features:
                     if self.encode_code_sequence:
+                        code_features.append(
+                            get_code_features(code_sequence, ex,
+                                              self.max_code_length,
+                                              eval_method_details=method_details,
+                                              eval_tokenization_features=tokenization_features))
+                    nl_features.append(
+                        get_nl_features(old_nl_sequence, ex,
+                                        self.max_nl_length,
+                                        eval_method_details=method_details,
+                                        eval_tokenization_features=tokenization_features))
 
-                        code_features.append(get_code_features(code_sequence, dataset[i], self.max_code_length,
-                                                               eval_method_details=method_details,
-                                                               eval_tokenization_features=tokenization_features))
-                    nl_features.append(get_nl_features(old_nl_sequence, dataset[i], self.max_nl_length,
-                                                       eval_method_details=method_details,
-                                                       eval_tokenization_features=tokenization_features))
+            return UpdateBatchData(torch.tensor(code_token_ids, dtype=torch.int64, device=device),
+                                       torch.tensor(code_lengths, dtype=torch.int64, device=device),
+                                       torch.tensor(old_nl_token_ids, dtype=torch.int64, device=device),
+                                       torch.tensor(old_nl_lengths, dtype=torch.int64, device=device),
+                                       torch.tensor(trg_token_ids, dtype=torch.int64, device=device),
+                                       torch.tensor(trg_extended_token_ids, dtype=torch.int64, device=device),
+                                       torch.tensor(trg_lengths, dtype=torch.int64, device=device),
+                                       torch.tensor(invalid_copy_positions, dtype=torch.uint8, device=device),
+                                       inp_str_reps,
+                                       torch.tensor(inp_ids, dtype=torch.int64, device=device),
+                                       torch.tensor(code_features, dtype=torch.float32, device=device),
+                                       torch.tensor(nl_features, dtype=torch.float32, device=device),
+                                       torch.tensor(labels, dtype=torch.int64, device=device),
+                                       tensorize_graph_method_batch(graph_batch, device, self.max_ast_length))
 
-                
-            batches.append(UpdateBatchData(torch.tensor(code_token_ids, dtype=torch.int64, device=device),
-                                           torch.tensor(code_lengths, dtype=torch.int64, device=device),
-                                           torch.tensor(old_nl_token_ids, dtype=torch.int64, device=device),
-                                           torch.tensor(old_nl_lengths, dtype=torch.int64, device=device),
-                                           torch.tensor(trg_token_ids, dtype=torch.int64, device=device),
-                                           torch.tensor(trg_extended_token_ids, dtype=torch.int64, device=device),
-                                           torch.tensor(trg_lengths, dtype=torch.int64, device=device),
-                                           torch.tensor(invalid_copy_positions, dtype=torch.uint8, device=device),
+        return torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=shuffle,
+                                              collate_fn=get_collate(batch_transform=batch_transform))
 
-                                           inp_str_reps,
-                                           torch.tensor(inp_ids, dtype=torch.int64, device=device),
-
-                                           torch.tensor(code_features, dtype=torch.float32, device=device),
-                                           torch.tensor(nl_features, dtype=torch.float32, device=device),
-                                           torch.tensor(labels, dtype=torch.int64, device=device),
-                                           tensorize_graph_method_batch(graph_batch, device, self.max_ast_length)))
-            curr_idx = end_idx
-        return batches
     
     def get_encoder_output(self, batch_data, device):
         """Gets hidden states, final state, and a length masks corresponding to each encoder."""
