@@ -4,7 +4,7 @@ import os
 import sys
 import torch
 
-from dataset import Dataset
+from dataset import Dataset, IterableDataset
 
 sys.path.append('comment_update')
 
@@ -112,9 +112,9 @@ if __name__ == "__main__":
 
 
 
-    train_examples = Dataset(partition='train')
-    valid_examples = Dataset(partition='valid')
-    test_examples = Dataset(partition='test')
+    train_examples = IterableDataset(partition='train')
+    valid_examples = IterableDataset(partition='valid')
+    test_examples = IterableDataset(partition='test')
 
     if args.positive_only:
         train_examples = [ex for ex in train_examples if ex.label == 1]

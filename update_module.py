@@ -122,7 +122,8 @@ class UpdateModule(nn.Module):
            Early-stopping is employed to stop training if validation hasn't improved for a certain number
            of epochs."""
         valid_batches = self.manager.get_batches(valid_data, self.get_device())
-        train_batches = self.manager.get_batches(train_data, self.get_device(), shuffle=True)
+        # todo: shuffle lazy?
+        train_batches = self.manager.get_batches(train_data, self.get_device(), shuffle=False)
 
         best_loss = float('inf')
         patience_tally = 0

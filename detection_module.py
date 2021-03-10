@@ -55,7 +55,8 @@ class DetectionModule(nn.Module):
                 break
             
             self.train()
-            train_batches = self.manager.get_batches(train_dataset, self.get_device(), shuffle=True)
+            # todo: shuffle lazy?
+            train_batches = self.manager.get_batches(train_dataset, self.get_device(), shuffle=False)
 
 
 
