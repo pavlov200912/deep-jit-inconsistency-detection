@@ -112,9 +112,9 @@ if __name__ == "__main__":
 
 
 
-    train_examples = IterableDataset(partition='train')
-    valid_examples = IterableDataset(partition='valid')
-    test_examples = IterableDataset(partition='test')
+    train_examples = IterableDataset(partition='train', ignore_ast=False)
+    valid_examples = IterableDataset(partition='valid', ignore_ast=False)
+    test_examples = IterableDataset(partition='test', ignore_ast=False)
 
     if args.positive_only:
         train_examples = [ex for ex in train_examples if ex.label == 1]

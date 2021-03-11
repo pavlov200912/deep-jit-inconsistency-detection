@@ -61,22 +61,28 @@ class IterableDataset(torch.utils.data.IterableDataset):
         print(f'{partition} examples loaded! Loading asts...')
 
         self.asts = []
-        for comment_type in comment_types:
-            path = os.path.join(AST_DATA_PATH, comment_type,
-                                f'{partition}_ast.json')
-            # todo: check for closed connection
-            print(f'{comment_type}/{partition} asts loading...')
-            ast_file = open(path, 'r')
-            self.ast_files.append(ast_file)
-            iter_ast = ijson.items(ast_file, 'item')
-            self.asts.append(iter_ast)
-        self.asts = chain(*self.asts)
-        print(f'{partition} loaded!')
+
 
     def __iter__(self):
         if self.ignore_ast:
             return iter(self.examples)
         else:
+            self.asts = []
+            for file in self.ast_files:
+                file.close()
+            self.ast_files = []
+            comment_types = [CommentCategory(category).name for category in
+                             CommentCategory]
+            for comment_type in comment_types:
+                path = os.path.join(AST_DATA_PATH, comment_type,
+                                    f'{self.partition}_ast.json')
+                # todo: check for closed connection
+                print(f'{comment_type}/{self.partition} asts loading...')
+                ast_file = open(path, 'r')
+                self.ast_files.append(ast_file)
+                iter_ast = ijson.items(ast_file, 'item')
+                self.asts.append(iter_ast)
+            self.asts = chain(*self.asts)
             def ast_iter():
                 for ex, ex_ast_info in zip(self.examples, self.asts):
                     old_ast = DiffAST.from_json(ex_ast_info['old_ast'])
