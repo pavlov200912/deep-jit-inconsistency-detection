@@ -37,10 +37,11 @@ NUM_TRANSFORMER_LAYERS = 2
 # Download data from here: https://drive.google.com/drive/folders/1heqEQGZHgO6gZzCjuQD1EyYertN4SAYZ?usp=sharing
 # DATA_PATH should point to the location in which the above data is saved locally
 
-DATA_PATH = '/content/drive/MyDrive/public-inconsistency-detection-data'
+DATA_PATH = '/content/drive/MyDrive/public-data'
 #DATA_PATH = 'public-inconsistency-detection-data'
 
-RESOURCES_PATH = os.path.join(DATA_PATH, 'resources')
+
+RESOURCES_PATH = os.path.join('/content/drive/MyDrive/public-inconsistency-detection-data', 'resources')
 
 # Download model resources from here: https://drive.google.com/drive/folders/1cutxr4rMDkT1g2BbmCAR2wqKTxeFH11K?usp=sharing
 # MODEL_RESOURCES_PATH should point to the location in which the above resources are saved locally.
